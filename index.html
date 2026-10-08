@@ -4,40 +4,82 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Милана — 5 лет 🎉</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { brand: '#c6f91f' } } }
+  }
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
 <style>
   body { font-family: 'Inter', sans-serif; background: #060b12; color: #fff; overflow-x: hidden; }
   ::selection { background: #c6f91f; color: #000; }
 
-  /* Конфетти */
-  .confetti { position: fixed; width: 10px; height: 10px; z-index: 0; pointer-events: none; animation: fall linear infinite; top: -20px; }
-  @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+  /* Фирменный цвет: запасные стили на случай, если настройка Tailwind не применится */
+  .text-brand { color: #c6f91f !important; }
+  .bg-brand { background-color: #c6f91f !important; }
+  .bg-brand\/5 { background-color: rgba(198,249,31,0.05) !important; }
+  .bg-brand\/10 { background-color: rgba(198,249,31,0.10) !important; }
+  .border-brand\/20 { border-color: rgba(198,249,31,0.20) !important; }
+  .border-brand\/40 { border-color: rgba(198,249,31,0.40) !important; }
+  .hover\:text-brand:hover { color: #c6f91f !important; }
+  .hover\:border-brand\/40:hover { border-color: rgba(198,249,31,0.40) !important; }
+  .focus\:border-brand\/40:focus { border-color: rgba(198,249,31,0.40) !important; }
 
-  /* Плавные появления без скрытия */
+  /* Разделитель */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(198,249,31,0.25), transparent); }
+
+  /* Конфетти */
+  .confetti { position: fixed; top: -20px; z-index: 0; pointer-events: none; animation: fall linear forwards; }
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Появление (контент не прячется полностью) */
   .appear { animation: fadeUp 0.8s ease-out both; }
   @keyframes fadeUp { from { opacity: 0.3; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Светящаяся коробка */
-  .glow-box { animation: pulse 3s ease-in-out infinite; box-shadow: 0 0 40px rgba(198,249,31,0.15); }
-  @keyframes pulse { 0%,100%{ box-shadow:0 0 30px rgba(198,249,31,0.15); } 50%{ box-shadow:0 0 70px rgba(198,249,31,0.35); } }
+  /* Свечение таймера */
+  .glow-box { animation: pulse 3s ease-in-out infinite; }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 30px rgba(198,249,31,0.15); }
+    50% { box-shadow: 0 0 70px rgba(198,249,31,0.35); }
+  }
 
-  /* Плавающие шарики */
-  @keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-12px); } }
+  /* Плавание */
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
   .float-anim { animation: float 4s ease-in-out infinite; }
 
-  /* Карточки */
+  /* Карточки подарков */
   .gift-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; }
   .gift-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(198,249,31,0.3); }
-  .gift-card.claimed { opacity: 0.45; }
+  .gift-card.claimed { opacity: 0.5; }
   .gift-card.claimed h3 { text-decoration: line-through; text-decoration-color: #c6f91f; text-decoration-thickness: 2px; }
 
-  /* Кнопки */
-  .btn-prim { background: #c6f91f; color: #000; font-weight: 800; letter-spacing: 0.08em; transition: all 0.2s; }
+  /* Основная кнопка */
+  .btn-prim { background: #c6f91f; color: #000; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.2s; }
   .btn-prim:hover { box-shadow: 0 8px 30px rgba(198,249,31,0.35); transform: translateY(-1px); }
+  .btn-prim:disabled { opacity: 0.5; cursor: wait; transform: none; }
 
-  /* Скролл */
+  /* Уведомление */
+  #toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
+    background: #c6f91f; color: #000; font-weight: 800; padding: 14px 26px; border-radius: 14px;
+    z-index: 9999; transition: transform 0.35s ease; pointer-events: none;
+    box-shadow: 0 10px 30px rgba(198,249,31,0.3); max-width: 90vw; text-align: center;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Окно ввода имени */
+  #modal { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center;
+           background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); padding: 20px; }
+  #modal.open { display: flex; }
+
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: #060b12; }
   ::-webkit-scrollbar-thumb { background: rgba(198,249,31,0.3); border-radius: 3px; }
@@ -45,46 +87,64 @@
 </head>
 <body class="antialiased">
 
-<!-- Конфетти-контейнер -->
 <div id="confetti-box"></div>
+<div id="toast"></div>
+
+<!-- Окно бронирования -->
+<div id="modal">
+  <div class="w-full max-w-md rounded-3xl border border-white/10 p-7" style="background:#0d141d">
+    <div class="text-4xl mb-3" id="modal-icon">🎁</div>
+    <h3 class="text-xl font-black mb-1">Бронируем подарок</h3>
+    <p class="text-sm text-white/50 mb-5" id="modal-gift"></p>
+    <label class="block text-[11px] font-black tracking-wider uppercase text-white/40 mb-2">Ваше имя</label>
+    <input id="modal-name" type="text" maxlength="60" placeholder="Например: Тётя Оля"
+           class="w-full p-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/30 focus:outline-none focus:border-brand/40 mb-2">
+    <p class="text-xs text-white/30 mb-6">Имя увидят только родители Миланы</p>
+    <div class="flex gap-3">
+      <button onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-white/10 bg-white/5 text-xs font-black tracking-wider uppercase text-white/60 hover:text-white transition">Отмена</button>
+      <button id="modal-ok" onclick="confirmClaim()" class="btn-prim flex-1 py-3 rounded-xl text-xs">Забронировать</button>
+    </div>
+  </div>
+</div>
 
 <!-- Навигация -->
-<nav class="sticky top-0 z-50 backdrop-blur-xl bg-[#060b12]/90 border-b border-white/5">
+<nav class="sticky top-0 z-50 border-b border-white/5" style="background:rgba(6,11,18,0.9);backdrop-filter:blur(20px)">
   <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="#" class="flex items-center gap-2 text-sm font-black tracking-[0.15em] uppercase text-white/90 hover:text-brand transition">
+    <a href="#" class="flex items-center gap-2 text-sm font-black tracking-[0.15em] uppercase text-white/90">
       <span class="text-xl">🎀</span> День рождения
     </a>
-    <span class="text-[11px] font-black tracking-[0.15em] uppercase text-brand">20.11.2026</span>
+    <a href="#gifts" class="text-[11px] font-black tracking-[0.15em] uppercase text-brand">🎁 Подарки</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden px-6">
-  <!-- Фоновые шарики -->
   <div class="absolute inset-0 pointer-events-none">
     <div class="float-anim absolute top-16 left-[8%] text-6xl">🎈</div>
     <div class="float-anim absolute top-24 right-[10%] text-5xl" style="animation-delay:1s">🎈</div>
     <div class="float-anim absolute top-10 left-[28%] text-4xl" style="animation-delay:2s">🎈</div>
     <div class="float-anim absolute top-28 right-[24%] text-5xl" style="animation-delay:0.5s">🎈</div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[35rem] h-[35rem] rounded-full bg-brand/5 blur-[100px]"></div>
+    <div class="float-anim absolute bottom-16 left-[14%] text-5xl" style="animation-delay:1.5s">🎈</div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[35rem] h-[35rem] rounded-full"
+         style="background:rgba(198,249,31,0.06);filter:blur(100px)"></div>
   </div>
 
   <div class="relative z-10 text-center max-w-5xl mx-auto appear">
-    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand/20 bg-brand/5 mb-8 backdrop-blur">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand/20 bg-brand/5 mb-8">
       <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
       <span class="text-[11px] font-black tracking-[0.2em] uppercase text-brand">Приглашение на праздник</span>
     </div>
 
-    <h1 class="text-[5rem] sm:text-[7.5rem] lg:text-[10rem] font-black tracking-tighter leading-[0.8] mb-6">
+    <h1 class="text-[4.5rem] sm:text-[7.5rem] lg:text-[10rem] font-black tracking-tighter leading-[0.85] mb-6">
       <span class="block text-white">Милана</span>
-      <span class="block text-brand drop-shadow-[0_0_60px_rgba(198,249,31,0.35)]">5 лет</span>
-      <span class="inline-block ml-4 text-6xl sm:text-8xl align-middle float-anim" style="animation-delay:0.5s">🎉</span>
+      <span class="block text-brand" style="text-shadow:0 0 60px rgba(198,249,31,0.35)">5 лет</span>
     </h1>
 
-    <p class="text-xl sm:text-2xl font-light text-white/70 mb-12 tracking-wide">20 ноября 2026 · 5 лет</p>
+    <p class="text-xl sm:text-2xl font-light text-white/70 mb-12 tracking-wide">🎉 20 ноября 2026 🎉</p>
 
     <!-- Таймер -->
-    <div class="glow-box inline-grid grid-cols-4 gap-4 sm:gap-8 p-6 sm:p-8 rounded-3xl border border-brand/20 bg-white/[0.03] backdrop-blur-xl">
+    <div class="glow-box inline-grid grid-cols-4 gap-4 sm:gap-8 p-6 sm:p-8 rounded-3xl border border-brand/20"
+         style="background:rgba(255,255,255,0.03);backdrop-filter:blur(16px)">
       <div class="text-center">
         <div id="d" class="text-3xl sm:text-6xl font-black text-brand tabular-nums leading-none">00</div>
         <div class="text-[10px] font-black tracking-[0.15em] uppercase text-white/40 mt-2">дней</div>
@@ -102,23 +162,30 @@
         <div class="text-[10px] font-black tracking-[0.15em] uppercase text-white/40 mt-2">секунд</div>
       </div>
     </div>
+
+    <div class="mt-14">
+      <a href="#gifts" class="btn-prim inline-flex items-center gap-2 px-8 py-4 rounded-xl text-xs">🎁 Смотреть список подарков</a>
+    </div>
   </div>
 </section>
 
-<div class="h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"></div>
+<div class="divider"></div>
 
 <!-- ОБ ИМЕНИННИЦЕ -->
 <section class="py-24 px-6">
   <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
     <div class="relative group">
-      <div class="aspect-[4/5] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl shadow-brand/5">
-        <img src="https://picsum.photos/seed/milana5/700/875.jpg" alt="Милана" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition duration-700">
+      <div class="aspect-[4/5] rounded-[2rem] overflow-hidden border border-white/10">
+        <!-- Замените ссылку на фото Миланы -->
+        <img src="https://picsum.photos/seed/milana5/700/875.jpg" alt="Милана"
+             class="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-[1.03] transition duration-700">
       </div>
-      <div class="absolute -bottom-6 -right-6 bg-brand text-black px-6 py-4 rounded-2xl font-black text-3xl shadow-[0_15px_40px_rgba(198,249,31,0.3)] float-anim">5 🎂</div>
+      <div class="absolute -bottom-6 -right-4 bg-brand text-black px-6 py-4 rounded-2xl font-black text-3xl float-anim"
+           style="box-shadow:0 15px 40px rgba(198,249,31,0.3)">5 🎂</div>
     </div>
 
     <div>
-      <span class="inline-block text-[10px] font-black tracking-[0.2em] uppercase text-brand mb-4">О имениннице</span>
+      <span class="inline-block text-[10px] font-black tracking-[0.2em] uppercase text-brand mb-4">Об имениннице</span>
       <h2 class="text-4xl sm:text-5xl font-black tracking-tight mb-6 leading-[1.1]">
         Маленькая <span class="text-brand">принцесса</span> отмечает свой день!
       </h2>
@@ -126,16 +193,16 @@
         Милане исполняется 5 лет — самый волшебный возраст! Она обожает сказки, рисовать, танцевать и мечтает о настоящем приключении. Помогите сделать этот день незабываемым!
       </p>
       <div class="grid grid-cols-2 gap-3 sm:gap-4">
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📅</div><div class="text-[10px] font-black tracking-wider text-white/30 mb-1">Дата</div><div class="font-bold">20 ноября</div></div>
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">⏰</div><div class="text-[10px] font-black tracking-wider text-white/30 mb-1">Время</div><div class="font-bold">14:00</div></div>
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📍</div><div class="text-[10px] font-black tracking-wider text-white/30 mb-1">Место</div><div class="font-bold">Дома</div></div>
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">👗</div><div class="text-[10px] font-black tracking-wider text-white/30 mb-1">Дресс-код</div><div class="font-bold">Нарядный</div></div>
+        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📅</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Дата</div><div class="font-bold">20 ноября</div></div>
+        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">⏰</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Время</div><div class="font-bold">14:00</div></div>
+        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📍</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Место</div><div class="font-bold">Дома</div></div>
+        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">👗</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Дресс-код</div><div class="font-bold">Нарядный</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"></div>
+<div class="divider"></div>
 
 <!-- СПИСОК ПОДАРКОВ -->
 <section id="gifts" class="py-24 px-6">
@@ -143,242 +210,296 @@
     <div class="text-center mb-16">
       <span class="inline-block text-[10px] font-black tracking-[0.2em] uppercase text-brand mb-4">Подарки</span>
       <h2 class="text-4xl sm:text-6xl font-black tracking-tight mb-4">Список <span class="text-brand">пожеланий</span> 🎁</h2>
-      <p class="text-white/40 font-light max-w-lg mx-auto">Отметьте «Подарю» — подарок зарезервируется. Перейдите по ссылке и купите на маркетплейсе.</p>
+      <p class="text-white/40 font-light max-w-lg mx-auto">
+        Нажмите «Я подарю это», чтобы забронировать подарок — другие гости увидят, что он занят. Купить можно по ссылке на маркетплейс.
+      </p>
     </div>
 
     <div id="gifts-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Карточки генерируются JS, но если он не работает — покажем базовый текст -->
       <p class="col-span-full text-center text-white/30 py-10">Загрузка списка...</p>
     </div>
 
     <div class="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-3xl border border-white/10 bg-white/[0.02]">
-      <div>
-        <div class="font-black text-sm">Отмечено: <span id="gift-stat" class="text-brand">0 из 9</span></div>
-        <div class="text-xs text-white/30">Сохранится в браузере</div>
+      <div class="text-center sm:text-left">
+        <div class="font-black text-sm">Забронировано: <span id="gift-stat" class="text-brand">0 из 0</span></div>
+        <div class="text-xs text-white/30" id="sync-status">Брони видят все гости</div>
       </div>
-      <button onclick="resetGifts()" class="px-6 py-3 rounded-xl border border-white/10 bg-white/5 text-xs font-black tracking-wider uppercase text-white/50 hover:text-white hover:bg-white/10 transition flex items-center gap-2">
-        🔄 Сбросить выбор
+      <button onclick="loadClaimed(true)" class="px-6 py-3 rounded-xl border border-white/10 bg-white/5 text-xs font-black tracking-wider uppercase text-white/50 hover:text-white hover:bg-white/10 transition">
+        🔄 Обновить
       </button>
     </div>
   </div>
 </section>
 
-<div class="h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent"></div>
+<div class="divider"></div>
 
 <!-- ПОЖЕЛАНИЯ -->
 <section class="py-24 px-6">
   <div class="max-w-2xl mx-auto text-center">
     <h2 class="text-3xl sm:text-5xl font-black tracking-tight mb-4">Напишите <span class="text-brand">Милане</span> ✨</h2>
-    <div class="text-sm text-white/40 mb-8">Пожелание появится сразу и сохранится</div>
+    <div class="text-sm text-white/40 mb-8">Пожелание сохранится на вашем устройстве</div>
 
-    <textarea id="wish-box" rows="4" placeholder="Милана, с днём рождения! Желаю тебе..." class="w-full p-6 rounded-2xl border border-white/10 bg-white/[0.03] text-white placeholder-white/30 font-light resize-none focus:outline-none focus:border-brand/40 transition mb-4"></textarea>
-    <button onclick="addWish()" class="btn-prim px-10 py-4 rounded-xl text-sm inline-flex items-center gap-2">📤 Отправить</button>
+    <textarea id="wish-box" rows="4" placeholder="Милана, с днём рождения! Желаю тебе..."
+              class="w-full p-6 rounded-2xl border border-white/10 bg-white/[0.03] text-white placeholder-white/30 font-light resize-none focus:outline-none focus:border-brand/40 transition mb-4"></textarea>
+    <button onclick="addWish()" class="btn-prim px-10 py-4 rounded-xl text-xs inline-flex items-center gap-2">📤 Отправить</button>
 
     <div id="wishes-list" class="mt-10 space-y-4 text-left"></div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="border-t border-white/5 py-14 text-center">
+<footer class="border-t border-white/5 py-14 text-center px-6">
   <div class="text-4xl mb-4">🎀 🎂 🎁 🎈 🎉</div>
   <p class="text-sm text-white/30 font-light">С любовью для <span class="text-brand font-black">Миланы</span> · 20.11.2026 · 5 лет</p>
 </footer>
 
-<!-- ====== ЛОГИКА ====== -->
 <script>
-/* ---- ДАННЫЕ ПОДАРКОВ (со ссылками на маркеты) ---- */
+/* =========================================================
+   НАСТРОЙКА: вставьте адрес своего Cloudflare Worker
+   (без /claims в конце)
+   ========================================================= */
+const API_URL = 'https://milana-api.polev87.workers.dev';
+
+/* ---- ССЫЛКИ НА МАРКЕТПЛЕЙСЫ ---- */
+const WB = q => 'https://www.wildberries.ru/catalog/0/search.aspx?search=' + encodeURIComponent(q);
+const OZ = q => 'https://www.ozon.ru/search/?text=' + encodeURIComponent(q);
+
+/* ---- СПИСОК ПОДАРКОВ ----
+   ВАЖНО: после начала броней не меняйте порядок!
+   Новые подарки добавляйте только в конец. */
 const GIFT_LIST = [
-  {icon:'🧸', name:'Большой плюшевый мишка', desc:'Мягкий для объятий перед сном', price:'3 000 ₽', url:'https://www.wildberries.ru/catalog/igrushki/myagkie-igrushki/myagkaya-igrushka-medved'},
-  {icon:'🎨', name:'Набор для рисования', desc:'Акварель, кисти, карандаши и альбом', price:'2 500 ₽', url:'https://www.ozon.ru/category/nabory-dlya-risovaniya-7033/'},
-  {icon:'🚲', name:'Велосипед с корзинкой', desc:'Яркий розовый с колёсиками и звонком', price:'8 000 ₽', url:'https://www.wildberries.ru/catalog/dlya-doma/velosipedy'},
-  {icon:'📚', name:'Набор сказок с иллюстрациями', desc:'Красочные издания любимых историй', price:'1 500 ₽', url:'https://www.ozon.ru/category/detskie-knigi-7020/'},
-  {icon:'🎭', name:'Кукольный театр с ширмой', desc:'С куклами для домашних спектаклей', price:'4 000 ₽', url:'https://www.wildberries.ru/catalog/igrushki/kukolnye-teatry'},
-  {icon:'🧩', name:'Большой пазл 200 деталей', desc:'Замок принцессы и сказочные герои', price:'1 200 ₽', url:'https://www.ozon.ru/category/pazly-15008/'},
-  {icon:'👸', name:'Наряд принцессы', desc:'Платье, корона с камнями и палочка', price:'3 500 ₽', url:'https://www.wildberries.ru/catalog/detskaya-odezhda/platya'},
-  {icon:'🏠', name:'Кукольный домик', desc:'С мебелью и светящимися окошками', price:'6 000 ₽', url:'https://www.ozon.ru/category/kukolnye-domiki-9/'},
-  {icon:'🎶', name:'Детское караоке', desc:'С подсветкой и любимыми песенками', price:'2 800 ₽', url:'https://www.wildberries.ru/catalog/igrushki/mikrofony-i-karaoke'}
+  {icon:'🧸', name:'Большой плюшевый мишка',       desc:'Мягкий для объятий перед сном',          price:'3 000 ₽', url: WB('большой плюшевый медведь')},
+  {icon:'🎨', name:'Набор для рисования',          desc:'Акварель, кисти, карандаши и альбом',    price:'2 500 ₽', url: OZ('набор для рисования детский')},
+  {icon:'🚲', name:'Велосипед с корзинкой',        desc:'Яркий розовый с колёсиками и звонком',   price:'8 000 ₽', url: WB('детский велосипед 16 дюймов для девочки')},
+  {icon:'📚', name:'Набор сказок с иллюстрациями', desc:'Красочные издания любимых историй',      price:'1 500 ₽', url: OZ('сказки для детей с иллюстрациями')},
+  {icon:'🎭', name:'Кукольный театр с ширмой',     desc:'С куклами для домашних спектаклей',      price:'4 000 ₽', url: WB('кукольный театр с ширмой')},
+  {icon:'🧩', name:'Большой пазл 200 деталей',     desc:'Замок принцессы и сказочные герои',      price:'1 200 ₽', url: OZ('пазл 200 деталей принцессы')},
+  {icon:'👸', name:'Наряд принцессы',              desc:'Платье, корона с камнями и палочка',     price:'3 500 ₽', url: WB('платье принцессы для девочки 5 лет')},
+  {icon:'🏠', name:'Кукольный домик',              desc:'С мебелью и светящимися окошками',       price:'6 000 ₽', url: OZ('кукольный домик с мебелью')},
+  {icon:'🎶', name:'Детское караоке',              desc:'С подсветкой и любимыми песенками',      price:'2 800 ₽', url: WB('детское караоке с микрофоном')}
 ];
 
-/* ---- БЕЗОПАСНОЕ ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ---- */
+/* ---- ДАТА ПРАЗДНИКА ---- */
+const PARTY_DATE = new Date(2026, 10, 20, 14, 0, 0); // 20 ноября 2026, 14:00 (месяцы с 0)
+
+/* ---- ВСПОМОГАТЕЛЬНОЕ ---- */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 function loadStore(key, def) {
-  try { return JSON.parse(localStorage.getItem(key)) || def; } catch(e) { return def; }
+  try { const v = JSON.parse(localStorage.getItem(key)); return v ?? def; } catch (e) { return def; }
 }
 function saveStore(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
 }
 
-let claimed = loadStore('milana-claimed', []); // массив индексов
-if (!Array.isArray(claimed)) claimed = [];
-let wishes  = loadStore('milana-wishes', []);
-if (!Array.isArray(wishes)) wishes = [];
+let toastTimer;
+function showToast(msg, ms = 2600) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+}
 
-/* ---- РЕНДЕР ПОДАРКОВ ---- */
+/* ---- ТАЙМЕР ---- */
+function updateTimer() {
+  const dEl = document.getElementById('d'), hEl = document.getElementById('h'),
+        mEl = document.getElementById('m'), sEl = document.getElementById('s');
+  let diff = PARTY_DATE - new Date();
+
+  if (diff <= 0) {
+    dEl.textContent = '🎉'; hEl.textContent = '🎂'; mEl.textContent = '🎈'; sEl.textContent = '🎁';
+    return;
+  }
+  const d = Math.floor(diff / 86400000); diff -= d * 86400000;
+  const h = Math.floor(diff / 3600000);  diff -= h * 3600000;
+  const m = Math.floor(diff / 60000);    diff -= m * 60000;
+  const s = Math.floor(diff / 1000);
+
+  dEl.textContent = String(d).padStart(2, '0');
+  hEl.textContent = String(h).padStart(2, '0');
+  mEl.textContent = String(m).padStart(2, '0');
+  sEl.textContent = String(s).padStart(2, '0');
+}
+
+/* ---- ПОДАРКИ ---- */
+let claimed = [];
+let busy = false;
+let pendingId = null;
+
 function renderGifts() {
   const grid = document.getElementById('gifts-grid');
-  if (!grid) return;
   grid.innerHTML = '';
 
   GIFT_LIST.forEach((g, i) => {
     const isC = claimed.includes(i);
     const card = document.createElement('div');
-    card.className = `gift-card rounded-[1.4rem] p-6 sm:p-7 appear`;
-    card.style.animationDelay = (i * 0.06) + 's';
+    card.className = 'gift-card rounded-[1.4rem] p-6 sm:p-7' + (isC ? ' claimed' : '');
     card.innerHTML = `
       <div class="flex items-start justify-between mb-4">
         <span class="text-4xl">${g.icon}</span>
-        <span class="text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full ${isC ? 'text-brand bg-brand/10' : 'text-white/30 bg-white/5'}">${g.price}</span>
+        <span class="text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full ${isC ? 'text-brand bg-brand/10' : 'text-white/40 bg-white/5'}">${esc(g.price)}</span>
       </div>
-      <h3 class="font-black text-lg mb-1 leading-snug tracking-tight">${g.name}</h3>
-      <p class="text-sm text-white/35 font-light mb-6 leading-relaxed">${g.desc}</p>
+      <h3 class="font-black text-lg mb-1 leading-snug tracking-tight">${esc(g.name)}</h3>
+      <p class="text-sm text-white/40 font-light mb-6 leading-relaxed">${esc(g.desc)}</p>
       <div class="flex flex-col gap-2.5">
-        <a href="${g.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="w-full py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[11px] font-black tracking-[0.1em] uppercase text-white/60 hover:text-brand hover:border-brand/40 flex items-center justify-center gap-2 transition">
+        <a href="${g.url}" target="_blank" rel="noopener noreferrer"
+           class="w-full py-3 rounded-xl border border-white/10 bg-white/[0.03] text-[11px] font-black tracking-[0.1em] uppercase text-white/70 hover:text-brand hover:border-brand/40 flex items-center justify-center gap-2 transition">
           🛒 Найти в магазине
         </a>
         ${isC
           ? `<div class="w-full py-3 rounded-xl bg-brand/10 border border-brand/20 text-brand text-[11px] font-black tracking-[0.1em] uppercase flex items-center justify-center gap-2">✅ Уже забронирован</div>`
-          : `<button onclick="claimGift(${i})" class="btn-prim w-full py-3 rounded-xl text-[11px] flex items-center justify-center gap-2">💖 Я подарю это</button>`
+          : `<button onclick="openModal(${i})" class="btn-prim w-full py-3 rounded-xl text-[11px] flex items-center justify-center gap-2">💖 Я подарю это</button>`
         }
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
   });
 
   document.getElementById('gift-stat').textContent = `${claimed.length} из ${GIFT_LIST.length}`;
 }
 
-/* ---- ДЕЙСТВИЯ С ПОДАРКАМИ ---- */
-function claimGift(i) {
-  if (!claimed.includes(i)) {
-    claimed.push(i);
-    saveStore('milana-claimed', claimed);
+function setSync(text) {
+  document.getElementById('sync-status').textContent = text;
+}
+
+async function loadClaimed(manual = false) {
+  try {
+    const res = await fetch(API_URL + '/claims', { cache: 'no-store' });
+    const data = await res.json();
+    claimed = (data.claimed || []).map(Number);
     renderGifts();
-    showToast('🎁 Подарок зарезервирован! Спасибо');
-    boomConfetti();
+    setSync('Брони видят все гости · обновлено ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}));
+    if (manual) showToast('✅ Список обновлён');
+  } catch (e) {
+    console.error('Не удалось загрузить брони', e);
+    setSync('⚠️ Нет связи с сервером броней');
+    if (manual) showToast('⚠️ Не удалось обновить список');
   }
 }
-function resetGifts() {
-  claimed = [];
-  saveStore('milana-claimed', claimed);
-  renderGifts();
-  showToast('🔄 Выбор сброшен');
+
+/* Окно ввода имени */
+function openModal(i) {
+  if (claimed.includes(i)) return;
+  pendingId = i;
+  document.getElementById('modal-icon').textContent = GIFT_LIST[i].icon;
+  document.getElementById('modal-gift').textContent = GIFT_LIST[i].name;
+  const input = document.getElementById('modal-name');
+  input.value = loadStore('milana-guest-name', '');
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => input.focus(), 50);
 }
 
-/* ---- ОБРАТНЫЙ ОТСЧЁТ ---- */
-function updateTimer() {
-  const target = new Date('2026-11-20T00:00:00');
-  const now = new Date();
-  let diff = target - now;
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  pendingId = null;
+}
 
-  const dEl = document.getElementById('d');
-  const hEl = document.getElementById('h');
-  const mEl = document.getElementById('m');
-  const sEl = document.getElementById('s');
-  if (!dEl) return;
+async function confirmClaim() {
+  if (busy || pendingId === null) return;
+  const name = document.getElementById('modal-name').value.trim();
+  if (!name) { showToast('✍️ Пожалуйста, введите имя'); return; }
 
-  if (diff <= 0) {
-    dEl.textContent = '🎉'; hEl.textContent = '🎂'; mEl.textContent = '5'; sEl.textContent = '!';
-    return;
+  const i = pendingId;
+  const okBtn = document.getElementById('modal-ok');
+  busy = true;
+  okBtn.disabled = true;
+  okBtn.textContent = 'Бронируем...';
+  saveStore('milana-guest-name', name);
+
+  try {
+    const res = await fetch(API_URL + '/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: i, guest: name, gift: GIFT_LIST[i].name })
+    });
+    const data = await res.json();
+    claimed = (data.claimed || []).map(Number);
+    renderGifts();
+    closeModal();
+
+    if (data.ok) {
+      showToast('🎁 Подарок забронирован! Спасибо', 3200);
+      boomConfetti();
+    } else {
+      showToast('😔 Этот подарок уже кто-то забронировал', 3200);
+    }
+  } catch (e) {
+    showToast('⚠️ Ошибка связи, попробуйте ещё раз');
+  } finally {
+    busy = false;
+    okBtn.disabled = false;
+    okBtn.textContent = 'Забронировать';
   }
-
-  const d = Math.floor(diff / 86400000);
-  diff -= d * 86400000;
-  const h = Math.floor(diff / 3600000);
-  diff -= h * 3600000;
-  const m = Math.floor(diff / 60000);
-  diff -= m * 60000;
-  const s = Math.floor(diff / 1000);
-
-  dEl.textContent = String(d).padStart(2,'0');
-  hEl.textContent = String(h).padStart(2,'0');
-  mEl.textContent = String(m).padStart(2,'0');
-  sEl.textContent = String(s).padStart(2,'0');
 }
 
-/* ---- ПОЖЕЛАНИЯ ---- */
+/* Закрытие окна по клику на фон и клавишам */
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('modal').classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter') confirmClaim();
+});
+
+/* ---- ПОЖЕЛАНИЯ (на устройстве гостя) ---- */
+let wishes = loadStore('milana-wishes', []);
+if (!Array.isArray(wishes)) wishes = [];
+
 function renderWishes() {
   const box = document.getElementById('wishes-list');
-  if (!box) return;
   if (wishes.length === 0) {
-    box.innerHTML = '<p class="text-sm text-white/20 py-4">Пока нет пожеланий. Будьте первым!</p>';
+    box.innerHTML = '<p class="text-sm text-white/25 py-4 text-center">Пока нет пожеланий. Будьте первым!</p>';
     return;
   }
   box.innerHTML = wishes.map(w => `
-    <div class="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.03] text-left appear">
-      <p class="text-white/80 font-light leading-relaxed">"${w.text}"</p>
-      <div class="text-[10px] text-white/25 font-black tracking-widest mt-3">${w.time}</div>
-    </div>
-  `).join('');
+    <div class="p-6 rounded-2xl border border-white/10 bg-white/[0.03] appear">
+      <p class="text-white/80 font-light leading-relaxed">«${esc(w.text)}»</p>
+      <div class="text-[10px] text-white/25 font-black tracking-widest mt-3">${esc(w.time)}</div>
+    </div>`).join('');
 }
 
 function addWish() {
   const input = document.getElementById('wish-box');
-  if (!input) return;
   const text = input.value.trim();
   if (!text) return;
-  wishes.unshift({ text: text.replace(/</g,'&lt;').replace(/>/g,'&gt;'), time: new Date().toLocaleString('ru-RU') });
+  wishes.unshift({ text: text.slice(0, 1000), time: new Date().toLocaleString('ru-RU') });
   saveStore('milana-wishes', wishes);
   input.value = '';
   renderWishes();
-  showToast('💖 Пожелание отправлено');
+  showToast('💖 Пожелание сохранено');
   boomConfetti();
 }
 
-/* ---- ТОСТ ---- */
-function showToast(msg) {
-  const t = document.getElementById('toast'); // не добавляем в DOM, просто используем alert-like
-  // Создаём простой тост прямо в body, если нужно
-  let el = document.getElementById('live-toast');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'live-toast';
-    el.className = 'fixed bottom-8 left-1/2 -translate-x-1/2 bg-brand text-black font-black px-6 py-3 rounded-xl shadow-2xl z-[9999] transition-opacity duration-300 opacity-0 pointer-events-none';
-    document.body.appendChild(el);
-  }
-  el.textContent = msg;
-  el.style.opacity = '1';
-  setTimeout(() => el.style.opacity = '0', 2500);
-}
-
 /* ---- КОНФЕТТИ ---- */
-function boomConfetti() {
-  const colors = ['#c6f91f','#ff6b9d','#ffd93d','#6bcbff','#ff6b6b','#a855f7'];
-  for (let i = 0; i < 30; i++) {
-    setTimeout(() => {
-      const p = document.createElement('div');
-      p.className = 'confetti';
-      p.style.left = Math.random()*100 + 'vw';
-      p.style.background = colors[Math.floor(Math.random()*colors.length)];
-      p.style.width = (Math.random()*10+8) + 'px';
-      p.style.height = (Math.random()*10+8) + 'px';
-      p.style.animationDuration = (Math.random()*3+3) + 's';
-      p.style.animationDelay = '0s';
-      document.getElementById('confetti-box').appendChild(p);
-      setTimeout(() => p.remove(), 6500);
-    }, i * 30);
-  }
-}
+const COLORS = ['#c6f91f','#ff6b9d','#ffd93d','#6bcbff','#ff6b6b','#a855f7'];
 
-// Фоновое медленное конфетти
-setInterval(() => {
-  const colors = ['#c6f91f','#ff6b9d','#ffd93d','#6bcbff'];
+function dropConfetti(sizeMin, sizeRange, durMin, durRange) {
   const p = document.createElement('div');
   p.className = 'confetti';
-  p.style.left = Math.random()*100 + 'vw';
-  p.style.background = colors[Math.floor(Math.random()*colors.length)];
-  p.style.width = (Math.random()*6+4)+'px';
-  p.style.height = (Math.random()*6+4)+'px';
-  p.style.animationDuration = (Math.random()*4+4)+'s';
+  const size = Math.random() * sizeRange + sizeMin;
+  const dur = Math.random() * durRange + durMin;
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
+  p.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
+  p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+  p.style.animationDuration = dur + 's';
   document.getElementById('confetti-box').appendChild(p);
-  setTimeout(() => p.remove(), 9000);
-}, 700);
+  setTimeout(() => p.remove(), dur * 1000 + 200);
+}
+
+function boomConfetti() {
+  for (let i = 0; i < 35; i++) setTimeout(() => dropConfetti(8, 8, 3, 2), i * 30);
+}
+
+setInterval(() => dropConfetti(4, 6, 5, 4), 700);
 
 /* ---- ЗАПУСК ---- */
-window.addEventListener('load', () => {
-  updateTimer();
-  setInterval(updateTimer, 1000);
-  renderGifts();
-  renderWishes();
-});
+updateTimer();
+setInterval(updateTimer, 1000);
+renderGifts();
+renderWishes();
+loadClaimed();
+setInterval(loadClaimed, 30000);
 </script>
 
 </body>
