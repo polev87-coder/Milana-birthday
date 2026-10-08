@@ -140,7 +140,8 @@
       <span class="block text-brand" style="text-shadow:0 0 60px rgba(198,249,31,0.35)">5 лет</span>
     </h1>
 
-    <p class="text-xl sm:text-2xl font-light text-white/70 mb-12 tracking-wide">🎉 20 ноября 2026 🎉</p>
+    <p class="text-xl sm:text-2xl font-light text-white/70 mb-3 tracking-wide">🎉 21 ноября 2026 · 14:00 🎉</p>
+    <p class="text-base sm:text-lg font-light text-white/50 mb-12">📍 Детский городок «В гостях у Настеньки»</p>
 
     <!-- Таймер -->
     <div class="glow-box inline-grid grid-cols-4 gap-4 sm:gap-8 p-6 sm:p-8 rounded-3xl border border-brand/20"
@@ -176,9 +177,8 @@
   <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
     <div class="relative group">
       <div class="aspect-[4/5] rounded-[2rem] overflow-hidden border border-white/10">
-        <!-- Замените ссылку на фото Миланы -->
         <img src="milana.JPG" alt="Милана"
-             class="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-[1.03] transition duration-700">
+             class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.03] transition duration-700">
       </div>
       <div class="absolute -bottom-6 -right-4 bg-brand text-black px-6 py-4 rounded-2xl font-black text-3xl float-anim"
            style="box-shadow:0 15px 40px rgba(198,249,31,0.3)">5 🎂</div>
@@ -193,10 +193,10 @@
         Милане исполняется 5 лет — самый волшебный возраст! Она обожает сказки, рисовать, танцевать и мечтает о настоящем приключении. Помогите сделать этот день незабываемым!
       </p>
       <div class="grid grid-cols-2 gap-3 sm:gap-4">
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📅</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Дата</div><div class="font-bold">20 ноября</div></div>
+        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📅</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Дата</div><div class="font-bold">21 ноября</div></div>
         <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">⏰</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Время</div><div class="font-bold">14:00</div></div>
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📍</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Место</div><div class="font-bold">Дома</div></div>
-        <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">👗</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Дресс-код</div><div class="font-bold">Нарядный</div></div>
+        <div class="col-span-2 p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">📍</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Место</div><div class="font-bold">Детский городок «В гостях у Настеньки»</div></div>
+        <div class="col-span-2 p-5 rounded-2xl border border-white/10 bg-white/[0.02]"><div class="text-2xl mb-2">👗</div><div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Дресс-код</div><div class="font-bold">Нарядный</div></div>
       </div>
     </div>
   </div>
@@ -249,13 +249,12 @@
 
 <footer class="border-t border-white/5 py-14 text-center px-6">
   <div class="text-4xl mb-4">🎀 🎂 🎁 🎈 🎉</div>
-  <p class="text-sm text-white/30 font-light">С любовью для <span class="text-brand font-black">Миланы</span> · 20.11.2026 · 5 лет</p>
+  <p class="text-sm text-white/30 font-light">С любовью для <span class="text-brand font-black">Миланы</span> · 21.11.2026 · «В гостях у Настеньки»</p>
 </footer>
 
 <script>
 /* =========================================================
-   НАСТРОЙКА: вставьте адрес своего Cloudflare Worker
-   (без /claims в конце)
+   АДРЕС CLOUDFLARE WORKER (без /claims в конце)
    ========================================================= */
 const API_URL = 'https://milana-api.polev87.workers.dev';
 
@@ -279,7 +278,7 @@ const GIFT_LIST = [
 ];
 
 /* ---- ДАТА ПРАЗДНИКА ---- */
-const PARTY_DATE = new Date(2026, 10, 20, 14, 0, 0); // 20 ноября 2026, 14:00 (месяцы с 0)
+const PARTY_DATE = new Date(2026, 10, 21, 14, 0, 0); // 21 ноября 2026, 14:00 (месяцы с 0)
 
 /* ---- ВСПОМОГАТЕЛЬНОЕ ---- */
 function esc(s) {
