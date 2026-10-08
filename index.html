@@ -82,16 +82,15 @@
 <div id="confetti-box"></div>
 <div id="toast"></div>
 
-<!-- Окно бронирования (без поля имени) -->
+<!-- Окно подтверждения бронирования (без имени) -->
 <div id="modal">
-  <div class="w-full max-w-md rounded-3xl border border-white/10 p-7" style="background:#0d141d">
-    <div class="text-4xl mb-3" id="modal-icon">🎁</div>
-    <h3 class="text-xl font-black mb-1">Бронируем подарок</h3>
+  <div class="w-full max-w-sm rounded-3xl border border-white/10 p-7 text-center" style="background:#0d141d">
+    <div class="text-5xl mb-4" id="modal-icon">🎁</div>
+    <h3 class="text-xl font-black mb-2">Забронировать подарок?</h3>
     <p class="text-sm text-white/50 mb-6" id="modal-gift"></p>
-    <p class="text-sm text-white/40 mb-6">Подарок будет зарезервирован за вами. Другие гости увидят, что он уже занят.</p>
     <div class="flex gap-3">
       <button onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-white/10 bg-white/5 text-xs font-black tracking-wider uppercase text-white/60 hover:text-white transition">Отмена</button>
-      <button id="modal-ok" onclick="confirmClaim()" class="btn-prim flex-1 py-3 rounded-xl text-xs">Забронировать</button>
+      <button id="modal-ok" onclick="confirmClaim()" class="btn-prim flex-1 py-3 rounded-xl text-xs">Да, подарю!</button>
     </div>
   </div>
 </div>
@@ -273,9 +272,7 @@ const API_URL = 'https://milana-api.polev87.workers.dev';
 const WB = q => 'https://www.wildberries.ru/catalog/0/search.aspx?search=' + encodeURIComponent(q);
 const OZ = q => 'https://www.ozon.ru/search/?text=' + encodeURIComponent(q);
 
-/* ---- СПИСОК ПОДАРКОВ ----
-   ВАЖНО: после начала броней не меняйте порядок!
-   Новые подарки добавляйте только в конец. */
+/* ---- СПИСОК ПОДАРКОВ ---- */
 const GIFT_LIST = [
   {icon:'🧸', name:'Большой плюшевый мишка',       desc:'Мягкий для объятий перед сном',          price:'3 000 ₽', url: WB('большой плюшевый медведь')},
   {icon:'🎨', name:'Набор для рисования',          desc:'Акварель, кисти, карандаши и альбом',    price:'2 500 ₽', url: OZ('набор для рисования детский')},
@@ -285,11 +282,11 @@ const GIFT_LIST = [
   {icon:'🧩', name:'Большой пазл 200 деталей',     desc:'Замок принцессы и сказочные герои',      price:'1 200 ₽', url: OZ('пазл 200 деталей принцессы')},
   {icon:'👸', name:'Наряд принцессы',              desc:'Платье, корона с камнями и палочка',     price:'3 500 ₽', url: WB('платье принцессы для девочки 5 лет')},
   {icon:'🏠', name:'Кукольный домик',              desc:'С мебелью и светящимися окошками',       price:'6 000 ₽', url: OZ('кукольный домик с мебелью')},
-  {icon:'🎶', name:'Детское karaoke',              desc:'С подсветкой и любимыми песенками',      price:'2 800 ₽', url: WB('детское караоке с микрофоном')}
+  {icon:'🎶', name:'Детское караоке',              desc:'С подсветкой и любимыми песенками',      price:'2 800 ₽', url: WB('детское караоке с микрофоном')}
 ];
 
 /* ---- ДАТА ПРАЗДНИКА ---- */
-const PARTY_DATE = new Date(2026, 10, 21, 15, 0, 0); // 21 ноября 2026, 15:00 (месяцы с 0)
+const PARTY_DATE = new Date(2026, 10, 21, 15, 0, 0); // 21 ноября 2026, 15:00
 
 /* ---- ВСПОМОГАТЕЛЬНОЕ ---- */
 function esc(s) {
@@ -380,4 +377,9 @@ async function loadClaimed(manual = false) {
     const data = await res.json();
     claimed = (data.claimed || []).map(Number);
     renderGifts();
-    setSync('Брони видят все гости · обновлено ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit
+    setSync('Брони видят все гости · обновлено ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}));
+    if (manual) showToast('✅ Список подарков обновлён');
+  } catch (e) {
+    console.error('Не удалось загрузить брони', e);
+    setSync('⚠️ Нет связи с сервером броней');
+    if (ma
