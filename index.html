@@ -82,15 +82,19 @@
 <div id="confetti-box"></div>
 <div id="toast"></div>
 
-<!-- Окно подтверждения бронирования (без имени) -->
+<!-- Окно бронирования -->
 <div id="modal">
-  <div class="w-full max-w-sm rounded-3xl border border-white/10 p-7 text-center" style="background:#0d141d">
-    <div class="text-5xl mb-4" id="modal-icon">🎁</div>
-    <h3 class="text-xl font-black mb-2">Забронировать подарок?</h3>
-    <p class="text-sm text-white/50 mb-6" id="modal-gift"></p>
+  <div class="w-full max-w-md rounded-3xl border border-white/10 p-7" style="background:#0d141d">
+    <div class="text-4xl mb-3" id="modal-icon">🎁</div>
+    <h3 class="text-xl font-black mb-1">Бронируем подарок</h3>
+    <p class="text-sm text-white/50 mb-5" id="modal-gift"></p>
+    <label class="block text-[11px] font-black tracking-wider uppercase text-white/40 mb-2">Ваше имя</label>
+    <input id="modal-name" type="text" maxlength="60" placeholder="Например: Тётя Оля"
+           class="w-full p-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/30 focus:outline-none focus:border-brand/40 mb-2">
+    <p class="text-xs text-white/30 mb-6">Имя увидят только родители Миланы</p>
     <div class="flex gap-3">
       <button onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-white/10 bg-white/5 text-xs font-black tracking-wider uppercase text-white/60 hover:text-white transition">Отмена</button>
-      <button id="modal-ok" onclick="confirmClaim()" class="btn-prim flex-1 py-3 rounded-xl text-xs">Да, подарю!</button>
+      <button id="modal-ok" onclick="confirmClaim()" class="btn-prim flex-1 py-3 rounded-xl text-xs">Забронировать</button>
     </div>
   </div>
 </div>
@@ -128,7 +132,7 @@
       <span class="block text-brand" style="text-shadow:0 0 60px rgba(198,249,31,0.35)">5 лет</span>
     </h1>
 
-    <p class="text-xl sm:text-2xl font-light text-white/70 mb-3 tracking-wide">🎉 21 ноября 2026 · 15:00 🎉</p>
+    <p class="text-xl sm:text-2xl font-light text-white/70 mb-3 tracking-wide">🎉 21 ноября 2026 · 14:00 🎉</p>
     <p class="text-base sm:text-lg font-light text-white/50 mb-12">📍 Детский городок «В гостях у Настеньки»</p>
 
     <!-- Таймер -->
@@ -189,7 +193,7 @@
         <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]">
           <div class="text-2xl mb-2">⏰</div>
           <div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Время</div>
-          <div class="font-bold">15:00</div>
+          <div class="font-bold">14:00</div>
         </div>
         <div class="col-span-2 p-5 rounded-2xl border border-white/10 bg-white/[0.02]">
           <div class="text-2xl mb-2">📍</div>
@@ -264,7 +268,7 @@
 
 <script>
 /* =========================================================
-   АДРЕС CLOUDFLARE WORKER
+   АДРЕС CLOUDFLARE WORKER (без /claims или /wishes в конце)
    ========================================================= */
 const API_URL = 'https://milana-api.polev87.workers.dev';
 
@@ -272,7 +276,9 @@ const API_URL = 'https://milana-api.polev87.workers.dev';
 const WB = q => 'https://www.wildberries.ru/catalog/0/search.aspx?search=' + encodeURIComponent(q);
 const OZ = q => 'https://www.ozon.ru/search/?text=' + encodeURIComponent(q);
 
-/* ---- СПИСОК ПОДАРКОВ ---- */
+/* ---- СПИСОК ПОДАРКОВ ----
+   ВАЖНО: после начала броней не меняйте порядок!
+   Новые подарки добавляйте только в конец. */
 const GIFT_LIST = [
   {icon:'🧸', name:'Большой плюшевый мишка',       desc:'Мягкий для объятий перед сном',          price:'3 000 ₽', url: WB('большой плюшевый медведь')},
   {icon:'🎨', name:'Набор для рисования',          desc:'Акварель, кисти, карандаши и альбом',    price:'2 500 ₽', url: OZ('набор для рисования детский')},
@@ -286,7 +292,7 @@ const GIFT_LIST = [
 ];
 
 /* ---- ДАТА ПРАЗДНИКА ---- */
-const PARTY_DATE = new Date(2026, 10, 21, 15, 0, 0); // 21 ноября 2026, 15:00
+const PARTY_DATE = new Date(2026, 10, 21, 14, 0, 0); // 21 ноября 2026, 14:00 (месяцы с 0)
 
 /* ---- ВСПОМОГАТЕЛЬНОЕ ---- */
 function esc(s) {
@@ -371,15 +377,4 @@ function setSync(text) {
   document.getElementById('sync-status').textContent = text;
 }
 
-async function loadClaimed(manual = false) {
-  try {
-    const res = await fetch(API_URL + '/claims', { cache: 'no-store' });
-    const data = await res.json();
-    claimed = (data.claimed || []).map(Number);
-    renderGifts();
-    setSync('Брони видят все гости · обновлено ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}));
-    if (manual) showToast('✅ Список подарков обновлён');
-  } catch (e) {
-    console.error('Не удалось загрузить брони', e);
-    setSync('⚠️ Нет связи с сервером броней');
-    if (ma
+async fu
