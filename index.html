@@ -377,4 +377,212 @@ function setSync(text) {
   document.getElementById('sync-status').textContent = text;
 }
 
-async fu
+async function loadClaimed(manual = false) {
+  try {
+    const res = await fetch(API_URL + '/claims', { cache: 'no-store' });
+    const data = await res.json();
+    claimed = (data.claimed || []).map(Number);
+    renderGifts();
+    setSync('Брони видят все гости · обновлено ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}));
+    if (manual) showToast('✅ Список подарков обновлён');
+  } catch (e) {
+    console.error('Не удалось загрузить брони', e);
+    setSync('⚠️ Нет связи с сервером броней');
+    if (manual) showToast('⚠️ Не удалось обновить список');
+  }
+}
+
+/* Окно ввода имени для бронирования */
+function openModal(i) {
+  if (claimed.includes(i)) return;
+  pendingId = i;
+  document.getElementById('modal-icon').textContent = GIFT_LIST[i].icon;
+  document.getElementById('modal-gift').textContent = GIFT_LIST[i].name;
+  const input = document.getElementById('modal-name');
+  input.value = loadStore('milana-guest-name', '');
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  pendingId = null;
+}
+
+async function confirmClaim() {
+  if (busy || pendingId === null) return;
+  const name = document.getElementById('modal-name').value.trim();
+  if (!name) { showToast('✍️ Пожалуйста, введите имя'); return; }
+
+  const i = pendingId;
+  const okBtn = document.getElementById('modal-ok');
+  busy = true;
+  okBtn.disabled = true;
+  okBtn.textContent = 'Бронируем...';
+  saveStore('milana-guest-name', name);
+
+  try {
+    const res = await fetch(API_URL + '/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: i, guest: name, gift: GIFT_LIST[i].name })
+    });
+    const data = await res.json();
+    claimed = (data.claimed || []).map(Number);
+    renderGifts();
+    closeModal();
+
+    if (data.ok) {
+      showToast('🎁 Подарок забронирован! Спасибо', 3200);
+      boomConfetti();
+    } else {
+      showToast('😔 Этот подарок уже кто-то забронировал', 3200);
+    }
+  } catch (e) {
+    showToast('⚠️ Ошибка связи, попробуйте ещё раз');
+  } finally {
+    busy = false;
+    okBtn.disabled = false;
+    okBtn.textContent = 'Забронировать';
+  }
+}
+
+/* Закрытие окна бронирования */
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('modal').classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter') confirmClaim();
+});
+
+/* ===========================================================
+   ПОЖЕЛАНИЯ (общие, через Cloudflare D1)
+   =========================================================== */
+let wishes = [];
+let wishBusy = false;
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+}
+
+function renderWishes() {
+  const box = document.getElementById('wishes-list');
+  const count = document.getElementById('wishes-count');
+
+  if (wishes.length === 0) {
+    box.innerHTML = '<p class="text-sm text-white/25 py-4 text-center">Пока нет пожеланий. Будьте первым! 💌</p>';
+    count.textContent = '';
+    return;
+  }
+
+  count.textContent = 'Пожеланий: ' + wishes.length;
+  box.innerHTML = wishes.map(w => `
+    <div class="p-6 rounded-2xl border border-white/10 bg-white/[0.03]">
+      <p class="text-white/85 font-light leading-relaxed whitespace-pre-line">«${esc(w.text)}»</p>
+      <div class="flex items-center justify-between mt-4 gap-3 flex-wrap">
+        <span class="text-sm font-black text-brand">— ${esc(w.name)}</span>
+        <span class="text-[10px] text-white/25 font-black tracking-widest">${esc(formatDate(w.created_at))}</span>
+      </div>
+    </div>`).join('');
+}
+
+async function loadWishes() {
+  try {
+    const res = await fetch(API_URL + '/wishes', { cache: 'no-store' });
+    const data = await res.json();
+    wishes = data.wishes || [];
+    renderWishes();
+  } catch (e) {
+    console.error('Не удалось загрузить пожелания', e);
+    if (wishes.length === 0) {
+      document.getElementById('wishes-list').innerHTML =
+        '<p class="text-sm text-white/25 py-4 text-center">⚠️ Не удалось загрузить пожелания</p>';
+    }
+  }
+}
+
+async function addWish() {
+  if (wishBusy) return;
+  const nameEl = document.getElementById('wish-name');
+  const textEl = document.getElementById('wish-box');
+  const btn = document.getElementById('wish-btn');
+  const name = nameEl.value.trim();
+  const text = textEl.value.trim();
+
+  if (!name) { showToast('✍️ Укажите ваше имя'); nameEl.focus(); return; }
+  if (!text) { showToast('✍️ Напишите пожелание'); textEl.focus(); return; }
+
+  wishBusy = true;
+  btn.disabled = true;
+  btn.textContent = 'Отправляем...';
+  saveStore('milana-guest-name', name);
+
+  try {
+    const res = await fetch(API_URL + '/wish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, text })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.reason);
+    wishes = data.wishes || [];
+    renderWishes();
+    textEl.value = '';
+    showToast('💖 Пожелание опубликовано!');
+    boomConfetti();
+  } catch (e) {
+    showToast('⚠️ Не удалось отправить, попробуйте ещё раз');
+  } finally {
+    wishBusy = false;
+    btn.disabled = false;
+    btn.textContent = '📤 Отправить';
+  }
+}
+
+/* Подставляем имя, если гость уже вводил его ранее */
+document.getElementById('wish-name').value = loadStore('milana-guest-name', '');
+
+/* ===========================================================
+   КОНФЕТТИ
+   =========================================================== */
+const COLORS = ['#c6f91f','#ff6b9d','#ffd93d','#6bcbff','#ff6b6b','#a855f7'];
+
+function dropConfetti(sizeMin, sizeRange, durMin, durRange) {
+  const p = document.createElement('div');
+  p.className = 'confetti';
+  const size = Math.random() * sizeRange + sizeMin;
+  const dur = Math.random() * durRange + durMin;
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
+  p.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
+  p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+  p.style.animationDuration = dur + 's';
+  document.getElementById('confetti-box').appendChild(p);
+  setTimeout(() => p.remove(), dur * 1000 + 200);
+}
+
+function boomConfetti() {
+  for (let i = 0; i < 35; i++) setTimeout(() => dropConfetti(8, 8, 3, 2), i * 30);
+}
+
+setInterval(() => dropConfetti(4, 6, 5, 4), 700);
+
+/* ===========================================================
+   ЗАПУСК
+   =========================================================== */
+updateTimer();
+setInterval(updateTimer, 1000);
+renderGifts();
+loadClaimed();
+loadWishes();
+setInterval(loadClaimed, 30000);
+setInterval(loadWishes, 60000);
+</script>
+
+</body>
+</html>
