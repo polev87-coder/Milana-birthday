@@ -82,16 +82,13 @@
 <div id="confetti-box"></div>
 <div id="toast"></div>
 
-<!-- Окно бронирования -->
+<!-- Окно бронирования (без поля имени) -->
 <div id="modal">
   <div class="w-full max-w-md rounded-3xl border border-white/10 p-7" style="background:#0d141d">
     <div class="text-4xl mb-3" id="modal-icon">🎁</div>
     <h3 class="text-xl font-black mb-1">Бронируем подарок</h3>
-    <p class="text-sm text-white/50 mb-5" id="modal-gift"></p>
-    <label class="block text-[11px] font-black tracking-wider uppercase text-white/40 mb-2">Ваше имя</label>
-    <input id="modal-name" type="text" maxlength="60" placeholder="Например: Тётя Оля"
-           class="w-full p-4 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/30 focus:outline-none focus:border-brand/40 mb-2">
-    <p class="text-xs text-white/30 mb-6">Имя увидят только родители Миланы</p>
+    <p class="text-sm text-white/50 mb-6" id="modal-gift"></p>
+    <p class="text-sm text-white/40 mb-6">Подарок будет зарезервирован за вами. Другие гости увидят, что он уже занят.</p>
     <div class="flex gap-3">
       <button onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-white/10 bg-white/5 text-xs font-black tracking-wider uppercase text-white/60 hover:text-white transition">Отмена</button>
       <button id="modal-ok" onclick="confirmClaim()" class="btn-prim flex-1 py-3 rounded-xl text-xs">Забронировать</button>
@@ -132,7 +129,7 @@
       <span class="block text-brand" style="text-shadow:0 0 60px rgba(198,249,31,0.35)">5 лет</span>
     </h1>
 
-    <p class="text-xl sm:text-2xl font-light text-white/70 mb-3 tracking-wide">🎉 21 ноября 2026 · 14:00 🎉</p>
+    <p class="text-xl sm:text-2xl font-light text-white/70 mb-3 tracking-wide">🎉 21 ноября 2026 · 15:00 🎉</p>
     <p class="text-base sm:text-lg font-light text-white/50 mb-12">📍 Детский городок «В гостях у Настеньки»</p>
 
     <!-- Таймер -->
@@ -193,7 +190,7 @@
         <div class="p-5 rounded-2xl border border-white/10 bg-white/[0.02]">
           <div class="text-2xl mb-2">⏰</div>
           <div class="text-[10px] font-black tracking-wider uppercase text-white/30 mb-1">Время</div>
-          <div class="font-bold">14:00</div>
+          <div class="font-bold">15:00</div>
         </div>
         <div class="col-span-2 p-5 rounded-2xl border border-white/10 bg-white/[0.02]">
           <div class="text-2xl mb-2">📍</div>
@@ -268,7 +265,7 @@
 
 <script>
 /* =========================================================
-   АДРЕС CLOUDFLARE WORKER (без /claims или /wishes в конце)
+   АДРЕС CLOUDFLARE WORKER
    ========================================================= */
 const API_URL = 'https://milana-api.polev87.workers.dev';
 
@@ -288,11 +285,11 @@ const GIFT_LIST = [
   {icon:'🧩', name:'Большой пазл 200 деталей',     desc:'Замок принцессы и сказочные герои',      price:'1 200 ₽', url: OZ('пазл 200 деталей принцессы')},
   {icon:'👸', name:'Наряд принцессы',              desc:'Платье, корона с камнями и палочка',     price:'3 500 ₽', url: WB('платье принцессы для девочки 5 лет')},
   {icon:'🏠', name:'Кукольный домик',              desc:'С мебелью и светящимися окошками',       price:'6 000 ₽', url: OZ('кукольный домик с мебелью')},
-  {icon:'🎶', name:'Детское караоке',              desc:'С подсветкой и любимыми песенками',      price:'2 800 ₽', url: WB('детское караоке с микрофоном')}
+  {icon:'🎶', name:'Детское karaoke',              desc:'С подсветкой и любимыми песенками',      price:'2 800 ₽', url: WB('детское караоке с микрофоном')}
 ];
 
 /* ---- ДАТА ПРАЗДНИКА ---- */
-const PARTY_DATE = new Date(2026, 10, 21, 14, 0, 0); // 21 ноября 2026, 14:00 (месяцы с 0)
+const PARTY_DATE = new Date(2026, 10, 21, 15, 0, 0); // 21 ноября 2026, 15:00 (месяцы с 0)
 
 /* ---- ВСПОМОГАТЕЛЬНОЕ ---- */
 function esc(s) {
@@ -377,4 +374,206 @@ function setSync(text) {
   document.getElementById('sync-status').textContent = text;
 }
 
-async fu
+async function loadClaimed(manual = false) {
+  try {
+    const res = await fetch(API_URL + '/claims', { cache: 'no-store' });
+    const data = await res.json();
+    claimed = (data.claimed || []).map(Number);
+    renderGifts();
+    setSync('Брони видят все гости · обновлено ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}));
+    if (manual) showToast('✅ Список подарков обновлён');
+  } catch (e) {
+    console.error('Не удалось загрузить брони', e);
+    setSync('⚠️ Нет связи с сервером броней');
+    if (manual) showToast('⚠️ Не удалось обновить список');
+  }
+}
+
+/* Окно бронирования (без имени) */
+function openModal(i) {
+  if (claimed.includes(i)) return;
+  pendingId = i;
+  document.getElementById('modal-icon').textContent = GIFT_LIST[i].icon;
+  document.getElementById('modal-gift').textContent = GIFT_LIST[i].name;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  pendingId = null;
+}
+
+async function confirmClaim() {
+  if (busy || pendingId === null) return;
+
+  const i = pendingId;
+  const okBtn = document.getElementById('modal-ok');
+  busy = true;
+  okBtn.disabled = true;
+  okBtn.textContent = 'Бронируем...';
+
+  try {
+    const res = await fetch(API_URL + '/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: i, guest: '', gift: GIFT_LIST[i].name })
+    });
+    const data = await res.json();
+    claimed = (data.claimed || []).map(Number);
+    renderGifts();
+    closeModal();
+
+    if (data.ok) {
+      showToast('🎁 Подарок забронирован! Спасибо', 3200);
+      boomConfetti();
+    } else {
+      showToast('😔 Этот подарок уже кто-то забронировал', 3200);
+    }
+  } catch (e) {
+    showToast('⚠️ Ошибка связи, попробуйте ещё раз');
+  } finally {
+    busy = false;
+    okBtn.disabled = false;
+    okBtn.textContent = 'Забронировать';
+  }
+}
+
+/* Закрытие окна бронирования */
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('modal').classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter') confirmClaim();
+});
+
+/* ===========================================================
+   ПОЖЕЛАНИЯ (общие, через Cloudflare D1)
+   =========================================================== */
+let wishes = [];
+let wishBusy = false;
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+}
+
+function renderWishes() {
+  const box = document.getElementById('wishes-list');
+  const count = document.getElementById('wishes-count');
+
+  if (wishes.length === 0) {
+    box.innerHTML = '<p class="text-sm text-white/25 py-4 text-center">Пока нет пожеланий. Будьте первым! 💌</p>';
+    count.textContent = '';
+    return;
+  }
+
+  count.textContent = 'Пожеланий: ' + wishes.length;
+  box.innerHTML = wishes.map(w => `
+    <div class="p-6 rounded-2xl border border-white/10 bg-white/[0.03]">
+      <p class="text-white/85 font-light leading-relaxed whitespace-pre-line">«${esc(w.text)}»</p>
+      <div class="flex items-center justify-between mt-4 gap-3 flex-wrap">
+        <span class="text-sm font-black text-brand">— ${esc(w.name)}</span>
+        <span class="text-[10px] text-white/25 font-black tracking-widest">${esc(formatDate(w.created_at))}</span>
+      </div>
+    </div>`).join('');
+}
+
+async function loadWishes() {
+  try {
+    const res = await fetch(API_URL + '/wishes', { cache: 'no-store' });
+    const data = await res.json();
+    wishes = data.wishes || [];
+    renderWishes();
+  } catch (e) {
+    console.error('Не удалось загрузить пожелания', e);
+    if (wishes.length === 0) {
+      document.getElementById('wishes-list').innerHTML =
+        '<p class="text-sm text-white/25 py-4 text-center">⚠️ Не удалось загрузить пожелания</p>';
+    }
+  }
+}
+
+async function addWish() {
+  if (wishBusy) return;
+  const nameEl = document.getElementById('wish-name');
+  const textEl = document.getElementById('wish-box');
+  const btn = document.getElementById('wish-btn');
+  const name = nameEl.value.trim();
+  const text = textEl.value.trim();
+
+  if (!name) { showToast('✍️ Укажите ваше имя'); nameEl.focus(); return; }
+  if (!text) { showToast('✍️ Напишите пожелание'); textEl.focus(); return; }
+
+  wishBusy = true;
+  btn.disabled = true;
+  btn.textContent = 'Отправляем...';
+  saveStore('milana-guest-name', name);
+
+  try {
+    const res = await fetch(API_URL + '/wish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, text })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.reason);
+    wishes = data.wishes || [];
+    renderWishes();
+    textEl.value = '';
+    showToast('💖 Пожелание опубликовано!');
+    boomConfetti();
+  } catch (e) {
+    showToast('⚠️ Не удалось отправить, попробуйте ещё раз');
+  } finally {
+    wishBusy = false;
+    btn.disabled = false;
+    btn.textContent = '📤 Отправить';
+  }
+}
+
+/* Подставляем имя в форму пожеланий, если гость уже вводил его ранее */
+document.getElementById('wish-name').value = loadStore('milana-guest-name', '');
+
+/* ===========================================================
+   КОНФЕТТИ
+   =========================================================== */
+const COLORS = ['#c6f91f','#ff6b9d','#ffd93d','#6bcbff','#ff6b6b','#a855f7'];
+
+function dropConfetti(sizeMin, sizeRange, durMin, durRange) {
+  const p = document.createElement('div');
+  p.className = 'confetti';
+  const size = Math.random() * sizeRange + sizeMin;
+  const dur = Math.random() * durRange + durMin;
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
+  p.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
+  p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+  p.style.animationDuration = dur + 's';
+  document.getElementById('confetti-box').appendChild(p);
+  setTimeout(() => p.remove(), dur * 1000 + 200);
+}
+
+function boomConfetti() {
+  for (let i = 0; i < 35; i++) setTimeout(() => dropConfetti(8, 8, 3, 2), i * 30);
+}
+
+setInterval(() => dropConfetti(4, 6, 5, 4), 700);
+
+/* ===========================================================
+   ЗАПУСК
+   =========================================================== */
+updateTimer();
+setInterval(updateTimer, 1000);
+renderGifts();
+loadClaimed();
+loadWishes();
+setInterval(loadClaimed, 30000);
+setInterval(loadWishes, 60000);
+</script>
+
+</body>
+</html>
